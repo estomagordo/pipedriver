@@ -1,8 +1,9 @@
 class Organization:
-    def __init__(self, id, name, address):
+    def __init__(self, id, name, latitude, longitude):
         self.id = id
         self.name = name
-        self.latitude, self.longitude = [float(part) for part in address.split(',')]
+        self.latitude = latitude
+        self.longitude = longitude
 
     def __str__(self):
         return self.name

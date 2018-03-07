@@ -13,7 +13,11 @@ class PipeDriver:
         data = response.json()['data']
         
         for entry in data:
-            self.organizations.append(Organization(int(entry['id']), entry['name'], entry['address']))
+            id = int(entry['id'])
+            name = entry['name']
+            latitude, longitude = [float(coord) for coord in entry['address'].split(',')]
+
+            self.organizations.append(Organization(id, name, latitude, longitude))
 
         print(' '.join(organization.name for organization in self.organizations))
         for organization in self.organizations: print(organization)
