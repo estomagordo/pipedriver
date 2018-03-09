@@ -29,6 +29,9 @@ class CrudTool:
     def get_organizations(self):
         return self.pipedriver.get_organizations()
 
+    def print_all(self):
+        print('\n'.join(str(self.organizations[id]) for id in sorted(self.organizations.keys())))
+
 if __name__ == '__main__':
     crudtool = CrudTool(api_key)
-    print(crudtool.organizations)
+    crudtool.print_all()

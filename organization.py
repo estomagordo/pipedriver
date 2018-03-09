@@ -6,7 +6,7 @@ class Organization:
         self.longitude = longitude
 
     def __str__(self):
-        return self.name
+        return 'Name: {0} Position: ({1}, {2}) Id: {3}'.format(self.name, self.latitude, self.longitude, self.id)
 
     def __repr__(self):
         return str(self)
