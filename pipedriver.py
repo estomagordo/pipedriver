@@ -12,13 +12,24 @@ class PipeDriver:
 
     def __init__(self, api_token):
         self.params = { 'api_token': api_token }
-        self.organizations = {}
         self.next_id = 0
+
+    def get_organization(self, id):
+        response = requests.get(self.base_url + 'organizations/' + str(id), params = self.params)
+        response.raise_for_status()
+        data = response.json()['data']
+        
+        name = data['name']
+        latitude, longitude = self.address_to_coords(data['address'])
+
+        return Organization(id, name, latitude, longitude)
 
     def get_organizations(self):
         response = requests.get(self.base_url + 'organizations', params = self.params)
 
         response.raise_for_status()
+
+        organizations = {}
 
         data = response.json()['data']
         
@@ -28,9 +39,9 @@ class PipeDriver:
             name = entry['name']
             latitude, longitude = self.address_to_coords(entry['address'])
 
-            self.organizations[id] = Organization(id, name, latitude, longitude)
+            organizations[id] = Organization(id, name, latitude, longitude)
 
-        return len(self.organizations)
+        return organizations
 
     def create_organization(self, name, latitude, longitude):
         # Should be improved to handle multiple users
@@ -43,27 +54,17 @@ class PipeDriver:
 
         response.raise_for_status()
 
-        self.organizations[self.next_id] = organization
-        self.next_id += 1
-
-        return self.next_id - 1
+        return organization
 
     def delete_organization(self, id):
-        if not id in self.organizations:
-            raise IndexError
-
         response = requests.delete(self.base_url + 'organizations/' + str(id), params = self.params)
         response.raise_for_status()
-
-        del self.organizations[id]
 
         return True
 
     def update_organization(self, id, name = None, latitude = None, longitude = None):
-        if not id in self.organizations:
-            raise IndexError
+        organization = self.get_organization(id)
 
-        organization = self.organizations[id]
         newname = name or organization.name
         newlatitude = latitude or organization.latitude
         newlongitude = longitude or organization.longitude
@@ -75,8 +76,8 @@ class PipeDriver:
 
         response.raise_for_status()
 
-        self.organizations[id].latitude = newlatitude
-        self.organizations[id].longitude = newlongitude
-        self.organizations[id].name = newname
+        organization.latitude = newlatitude
+        organization.longitude = newlongitude
+        organization.name = newname
 
-        return True
+        return organization

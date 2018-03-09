@@ -20,13 +20,15 @@ def distance(point_a, point_b):
 
     return earth_radius * c
 
+class CrudTool:
+    
+    def __init__(self, api_key):
+        self.pipedriver = PipeDriver(api_key)        
+        self.organizations = self.get_organizations()
+
+    def get_organizations(self):
+        return self.pipedriver.get_organizations()
+
 if __name__ == '__main__':
-    pipe_driver = PipeDriver(api_key)
-    pipe_driver.get_organizations()
-    print(distance((53.43, -6.80), (53.414299, -6.830470)))
-    pipe_driver.delete_organization(6)
-    pipe_driver.create_organization('testiness', 25.251, -23.591)
-    pipe_driver.delete_organization(7)
-    pipe_driver.create_organization('testiness', 25.251, -23.591)
-    pipe_driver.update_organization(8, 'testirific')
-    pipe_driver.delete_organization(8)
+    crudtool = CrudTool(api_key)
+    print(crudtool.organizations)
