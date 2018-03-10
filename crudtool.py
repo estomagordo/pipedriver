@@ -16,6 +16,7 @@ create - create new organization
 view [id] - view organization [id]
 edit [id] - edit organization [id]
 delete [id] - edit organization [id]
+find - find the nearest organization(s) for coordinates
 exit - exit this program'''
 sInvalid = 'Invalid command, please try again.'
 sEnterName = 'Please enter a name.'
@@ -85,6 +86,20 @@ class CrudTool:
 
     def delete_organization(self, id):
         self.pipedriver.delete_organization(id)
+
+    def find_nearest(self, latitude, longitude):
+        # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
+        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latidude, org.longitude)))
+        shortest = distance((latitude, longitude), (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
+        out = []
+
+        for organization in sorted_organizations:
+            if distance((latitude, longitude), (organization.latitude, organization.longitude)) == shortest:
+                out.append(organization.id)
+            else:
+                break
+
+        return out
 
 if __name__ == '__main__':
     print(sConnecting)
@@ -190,6 +205,7 @@ if __name__ == '__main__':
                 print(sInvalid)
             continue
         elif command == 'delete':
+            # Should probably have a confirmation step.
             if len(instruction) == 2:
                 if instruction[1].isdigit():
                     id = int(instruction[1])
@@ -203,6 +219,25 @@ if __name__ == '__main__':
             else:
                 print(sInvalid)
             continue
+        elif command == 'find':
+            latitude = 1000.0
+            longitude = 1000.0
+
+            while not latitude_legal(latitude):
+                print(sEnterLatitude)
+                try:
+                    latidude = float(input())
+                except:
+                    pass
+
+            while not longitude_legal(longitude):
+                print(sEnterLongitude)
+                try:
+                    longitude = float(input())
+                except:
+                    pass
+
+            print('\n'.join(crudtool.print_organization(id) for id in crudtool.find_nearest(latitude, longitude)))            
         elif command == 'exit':
             break
         else:
