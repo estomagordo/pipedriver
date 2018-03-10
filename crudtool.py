@@ -39,6 +39,7 @@ def clearprint(s):
     print(s)
 
 def latitude_legal(latitude):
+    print(latitude)
     return -90.0 <= latitude <= 90.0
 
 def longitude_legal(longitude):
@@ -89,7 +90,7 @@ class CrudTool:
 
     def find_nearest(self, latitude, longitude):
         # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
-        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latidude, org.longitude)))
+        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latitude, org.longitude)))
         shortest = distance((latitude, longitude), (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
         out = []
 
@@ -133,7 +134,7 @@ if __name__ == '__main__':
                 while not latitude_legal(latitude):
                     print(sEnterLatitude)
                     try:
-                        latidude = float(input())
+                        latitude = float(input())
                     except:
                         pass
 
@@ -178,7 +179,7 @@ if __name__ == '__main__':
                             if not latString:
                                 break
                             try:
-                                latidude = float(latString)
+                                latitude = float(latString)
                             except:
                                 pass
 
@@ -226,7 +227,7 @@ if __name__ == '__main__':
             while not latitude_legal(latitude):
                 print(sEnterLatitude)
                 try:
-                    latidude = float(input())
+                    latitude = float(input())
                 except:
                     pass
 
