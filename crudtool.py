@@ -39,7 +39,6 @@ def clearprint(s):
     print(s)
 
 def latitude_legal(latitude):
-    print(latitude)
     return -90.0 <= latitude <= 90.0
 
 def longitude_legal(longitude):
