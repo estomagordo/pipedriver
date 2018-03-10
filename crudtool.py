@@ -86,6 +86,7 @@ class CrudTool:
 
     def delete_organization(self, id):
         self.pipedriver.delete_organization(id)
+        del self.organizations[id]
 
     def find_nearest(self, latitude, longitude):
         # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
