@@ -135,14 +135,14 @@ if __name__ == '__main__':
                     print(sEnterLatitude)
                     try:
                         latitude = float(input())
-                    except:
+                    except Exception:
                         pass
 
                 while not longitude_legal(longitude):
                     print(sEnterLongitude)
                     try:
                         longitude = float(input())
-                    except:
+                    except Exception:
                         pass
 
                 crudtool.create_organization(name, latitude, longitude)
@@ -180,7 +180,7 @@ if __name__ == '__main__':
                                 break
                             try:
                                 latitude = float(latString)
-                            except:
+                            except Exception:
                                 pass
 
                         while not longitude_legal(longitude):
@@ -190,7 +190,7 @@ if __name__ == '__main__':
                                 break
                             try:
                                 longitude = float(longString)
-                            except:
+                            except Exception:
                                 pass
 
                         if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
@@ -228,14 +228,14 @@ if __name__ == '__main__':
                 print(sEnterLatitude)
                 try:
                     latitude = float(input())
-                except:
+                except Exception:
                     pass
 
             while not longitude_legal(longitude):
                 print(sEnterLongitude)
                 try:
                     longitude = float(input())
-                except:
+                except Exception:
                     pass
 
             print('\n'.join(crudtool.print_organization(id) for id in crudtool.find_nearest(latitude, longitude)))            
