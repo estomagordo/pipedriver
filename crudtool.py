@@ -17,6 +17,18 @@ view [id] - view organization [id]
 edit [id] - edit organization [id]
 delete [id] - edit organization [id]
 exit - exit this program'''
+sInvalid = 'Invalid command, please try again.'
+sEnterName = 'Please enter a name.'
+sEnterLatitude = 'Please enter a latitude.'
+sEnterLongitude = 'Please enter a longitude.'
+sCreationSuccessful = 'Creation successful!'
+sNotFound = 'Organization with id {0} not found.'
+sDeletionSuccessful = 'Deletion successful!'
+sEnterEditName = 'Enter new name. Press enter to keep as is.'
+sEnterEditLatitude = 'Enter new latitude. Press enter to keep as is.'
+sEnterEditLongitude = 'Enter new longitude. Press enter to keep as is.'
+sNothingChanged = 'Nothing changed. Update skipped.'
+sEditSuccessful = 'Edit successful!'
 
 def clear():
     dummy = os.system('cls' if os.name == 'nt' else 'clear')
@@ -24,6 +36,12 @@ def clear():
 def clearprint(s):
     clear()
     print(s)
+
+def latitude_legal(latitude):
+    return -90.0 <= latitude <= 90.0
+
+def longitude_legal(longitude):
+    return -180.0 <= longitude <= 180.0
 
 def distance(point_a, point_b):
     # From: https://www.movable-type.co.uk/scripts/latlong.html
@@ -46,11 +64,27 @@ class CrudTool:
         self.pipedriver = PipeDriver(api_key)        
         self.organizations = self.get_organizations()
 
+    def contains_organization(self, id):
+        return id in self.organizations
+
     def get_organizations(self):
         return self.pipedriver.get_organizations()
 
-    def print_all(self):
+    def print_organization(self, id):
+        clearprint(self.organizations[id])
+
+    def print_all_organizations(self):
         clearprint('\n'.join(str(self.organizations[id]) for id in sorted(self.organizations.keys())))
+
+    def create_organization(self, name, latitude, longitude):
+        organization = self.pipedriver.create_organization(name, latitude, longitude)
+        self.organizations[organization.id] = organization
+
+    def edit_organization(self, id, name = None, latitude = None, longitude = None):
+        self.organizations[id] = self.pipedriver.update_organization(id, name, latitude, longitude)
+
+    def delete_organization(self, id):
+        self.pipedriver.delete_organization(id)
 
 if __name__ == '__main__':
     print(sConnecting)
@@ -67,15 +101,107 @@ if __name__ == '__main__':
             clearprint(sInstructions)
             continue
         elif command == 'list':
-            crudtool.print_all()
+            crudtool.print_all_organizations()
             continue
         elif command == 'create':
+            if len(instruction) > 1:
+                print(sInvalid)
+            else:
+                name = ''
+                latitude = 1000.0
+                longitude = 1000.0
+                
+                while not name:
+                    print(sEnterName)
+                    name = input().strip()
+                
+                while not latitude_legal(latitude):
+                    print(sEnterLatitude)
+                    try:
+                        latidude = float(input())
+                    except:
+                        pass
+
+                while not longitude_legal(longitude):
+                    print(sEnterLongitude)
+                    try:
+                        longitude = float(input())
+                    except:
+                        pass
+
+                crudtool.create_organization(name, latitude, longitude)
+                print(sCreationSuccessful)
+
             continue
         elif command == 'view':
+            if len(instruction) == 2:
+                if instruction[1].isdigit():
+                    id = int(instruction[1])
+                    if crudtool.contains_organization(id):
+                        crudtool.print_organization(id)
+                    else:
+                        print(sNotFound.format(id))
+                else:
+                    print(sInvalid)
+            else:
+                print(sInvalid)
             continue
         elif command == 'edit':
+            if len(instruction) == 2:
+                if instruction[1].isdigit():
+                    id = int(instruction[1])
+                    if crudtool.contains_organization(id):
+                        print(sEnterEditName)
+                        name = input()                                                
+                        
+                        latitude = 1000.0
+                        longitude = 1000.0
+
+                        while not latitude_legal(latitude):
+                            print(sEnterEditLatitude)
+                            latString = input()
+                            if not latString:
+                                break
+                            try:
+                                latidude = float(latString)
+                            except:
+                                pass
+
+                        while not longitude_legal(longitude):
+                            print(sEnterEditLongitude)
+                            longString = input()
+                            if not longString:
+                                break
+                            try:
+                                longitude = float(longString)
+                            except:
+                                pass
+
+                        if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
+                            print(sNothingChanged)
+                        else:
+                            crudtool.edit_organization(id, name or None, latitude if latitude_legal(latitude) else None, longitude if longitude_legal(longitude) else None)
+                            print(sEditSuccessful)
+                    else:
+                        print(sNotFound.format(id))
+                else:
+                    print(sInvalid)
+            else:
+                print(sInvalid)
             continue
         elif command == 'delete':
+            if len(instruction) == 2:
+                if instruction[1].isdigit():
+                    id = int(instruction[1])
+                    if crudtool.contains_organization(id):
+                        crudtool.delete_organization(id)
+                        print(sDeletionSuccessful)
+                    else:
+                        print(sNotFound.format(id))
+                else:
+                    print(sInvalid)
+            else:
+                print(sInvalid)
             continue
         elif command == 'exit':
             break
