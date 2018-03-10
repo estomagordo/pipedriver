@@ -47,8 +47,7 @@ class PipeDriver:
         response = requests.post(self.base_url + 'organizations', data = data, params = self.params)
 
         response.raise_for_status()
-
-        id = response.json()['id']
+        id = response.json()['data']['id']
 
         organization = Organization(id, name, latitude, longitude)
 
