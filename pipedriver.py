@@ -12,7 +12,6 @@ class PipeDriver:
 
     def __init__(self, api_token):
         self.params = { 'api_token': api_token }
-        self.next_id = 0
 
     def get_organization(self, id):
         response = requests.get(self.base_url + 'organizations/' + str(id), params = self.params)
@@ -35,7 +34,6 @@ class PipeDriver:
         
         for entry in data:
             id = int(entry['id'])
-            self.next_id = max(self.next_id, id + 1)
             name = entry['name']
             latitude, longitude = self.address_to_coords(entry['address'])
 
@@ -44,15 +42,15 @@ class PipeDriver:
         return organizations
 
     def create_organization(self, name, latitude, longitude):
-        # Should be improved to handle multiple users
         address = self.coords_to_address(latitude, longitude)
-        organization = Organization(self.next_id, name, latitude, longitude)
-
         data = { 'name': name, 'address': address }
-
         response = requests.post(self.base_url + 'organizations', data = data, params = self.params)
 
         response.raise_for_status()
+
+        id = response.json()['id']
+
+        organization = Organization(id, name, latitude, longitude)
 
         return organization
 
