@@ -151,14 +151,14 @@ def view_command(instruction):
     else:
         print(sInvalid)
 
-def edit_command(instruction):
+def edit_command(instruction, crudtool):
     if len(instruction) == 2:
         if instruction[1].isdigit():
             id = int(instruction[1])
             if crudtool.contains_organization(id):
                 print(sEnterEditName)
-                name = input()                                                
-                
+
+                name = input()                
                 latitude = 1000.0
                 longitude = 1000.0
 
@@ -185,7 +185,14 @@ def edit_command(instruction):
                 if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
                     print(sNothingChanged)
                 else:
-                    crudtool.edit_organization(id, name or None, latitude if latitude_legal(latitude) else None, longitude if longitude_legal(longitude) else None)
+                    organization = crudtool.get_organization(id)
+
+                    name = name if name else organization.name
+                    latitude = latitude if latitude_legal(latitude) else organization.latitude
+                    longitude = longitude if longitude_legal(longitude) else organization.longitude
+
+                    crudtool.edit_organization(id, name, latitude, longitude)
+                    
                     print(sEditSuccessful)
             else:
                 print(sNotFound.format(id))
@@ -252,7 +259,7 @@ if __name__ == '__main__':
         elif command == 'view':
             view_command(instruction)
         elif command == 'edit':
-            edit_command(instruction)
+            edit_command(instruction, crudtool)
         elif command == 'delete':
             delete_command(instruction)
         elif command == 'find':

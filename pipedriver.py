@@ -59,22 +59,17 @@ class PipeDriver:
 
         return True
 
-    def update_organization(self, id, name = None, latitude = None, longitude = None):
+    def update_organization(self, id, name, latitude, longitude):
         organization = self.get_organization(id)
-
-        newname = name or organization.name
-        newlatitude = latitude or organization.latitude
-        newlongitude = longitude or organization.longitude
-        address = self.coords_to_address(newlatitude, newlongitude)
-
-        data = { 'name': newname, 'address': address }
+        address = self.coords_to_address(latitude, longitude)
+        data = { 'name': name, 'address': address }
         
         response = requests.put(self.base_url + 'organizations/' + str(id), data = data, params = self.params)
 
         response.raise_for_status()
 
-        organization.latitude = newlatitude
-        organization.longitude = newlongitude
-        organization.name = newname
+        organization.name = name
+        organization.latitude = latitude
+        organization.longitude = longitude        
 
         return organization
