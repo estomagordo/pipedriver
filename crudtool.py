@@ -32,18 +32,23 @@ sNothingChanged = 'Nothing changed. Update skipped.'
 sEditSuccessful = 'Edit successful!'
 sNearestReport = '{0} {1} km away.'
 
+
 def clear():
     dummy = os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def clearprint(s):
     clear()
     print(s)
 
+
 def latitude_legal(latitude):
     return -90.0 <= latitude <= 90.0
 
+
 def longitude_legal(longitude):
     return -180.0 <= longitude <= 180.0
+
 
 def distance(point_a, point_b):
     # From: https://www.movable-type.co.uk/scripts/latlong.html
@@ -51,8 +56,8 @@ def distance(point_a, point_b):
     blat = radians(point_b[0])
     along = radians(point_a[1])
     blong = radians(point_b[1])
-    
-    deltalat  = blat - alat
+
+    deltalat = blat - alat
     deltalong = blong - along
 
     a = sin(deltalat / 2) * sin(deltalat / 2) + cos(alat) * cos(blat) * sin(deltalong / 2) * sin(deltalong / 2)
@@ -60,10 +65,11 @@ def distance(point_a, point_b):
 
     return earth_radius * c
 
+
 class CrudTool:
-    
+
     def __init__(self, api_key):
-        self.pipedriver = PipeDriver(api_key)        
+        self.pipedriver = PipeDriver(api_key)
         self.organizations = self.get_organizations()
 
     def contains_organization(self, id):
@@ -85,16 +91,16 @@ class CrudTool:
         organization = self.pipedriver.create_organization(name, latitude, longitude)
         self.organizations[organization.id] = organization
 
-    def edit_organization(self, id, name = None, latitude = None, longitude = None):
+    def edit_organization(self, id, name, latitude, longitude):
         self.organizations[id] = self.pipedriver.update_organization(id, name, latitude, longitude)
-    
+
     def delete_organization(self, id):
         self.pipedriver.delete_organization(id)
         del self.organizations[id]
 
     def find_nearest(self, point):
         # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
-        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance(point, (org.latitude, org.longitude)))        
+        sorted_organizations = sorted(self.organizations.values(), key=lambda org: distance(point, (org.latitude, org.longitude)))
         shortest = distance(point, (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
         out = []
 
@@ -103,24 +109,27 @@ class CrudTool:
                 out.append(organization.id)
             else:
                 break
-        
+
         return out
+
 
 def help_command():
     clearprint(sInstructions)
 
+
 def list_command():
     crudtool.print_all_organizations()
+
 
 def create_command():
     name = ''
     latitude = 1000.0
     longitude = 1000.0
-    
+
     while not name:
         print(sEnterName)
         name = input().strip()
-    
+
     while not latitude_legal(latitude):
         print(sEnterLatitude)
         try:
@@ -138,6 +147,7 @@ def create_command():
     crudtool.create_organization(name, latitude, longitude)
     print(sCreationSuccessful)
 
+
 def view_command(instruction):
     if len(instruction) == 2:
         if instruction[1].isdigit():
@@ -151,6 +161,7 @@ def view_command(instruction):
     else:
         print(sInvalid)
 
+
 def edit_command(instruction, crudtool):
     if len(instruction) == 2:
         if instruction[1].isdigit():
@@ -158,7 +169,7 @@ def edit_command(instruction, crudtool):
             if crudtool.contains_organization(id):
                 print(sEnterEditName)
 
-                name = input()                
+                name = input()
                 latitude = 1000.0
                 longitude = 1000.0
 
@@ -201,6 +212,7 @@ def edit_command(instruction, crudtool):
     else:
         print(sInvalid)
 
+
 def delete_command(instruction):
     # Should probably have a confirmation step.
     if len(instruction) == 2:
@@ -215,6 +227,7 @@ def delete_command(instruction):
             print(sInvalid)
     else:
         print(sInvalid)
+
 
 def find_command(crudtool):
     latitude = 1000.0
@@ -233,11 +246,12 @@ def find_command(crudtool):
             longitude = float(input())
         except Exception:
             pass
-            
+
     for id in crudtool.find_nearest((latitude, longitude)):
         organization = crudtool.get_organization(id)
         d = distance((latitude, longitude), (organization.latitude, organization.longitude))
         print(sNearestReport.format(organization, ('%.2f' % d)))
+
 
 if __name__ == '__main__':
     print(sConnecting)
@@ -245,7 +259,7 @@ if __name__ == '__main__':
     print(sSuccessful)
     print(len(crudtool.organizations), sOrgsInDb)
     print(sInstructions)
-    
+
     while True:
         instruction = input().split()
         command = instruction[0]
