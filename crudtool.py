@@ -30,6 +30,7 @@ sEnterEditLatitude = 'Enter new latitude. Press enter to keep as is.'
 sEnterEditLongitude = 'Enter new longitude. Press enter to keep as is.'
 sNothingChanged = 'Nothing changed. Update skipped.'
 sEditSuccessful = 'Edit successful!'
+sNearestReport = '{0} {1} km away.'
 
 def clear():
     dummy = os.system('cls' if os.name == 'nt' else 'clear')
@@ -71,11 +72,14 @@ class CrudTool:
     def get_organizations(self):
         return self.pipedriver.get_organizations()
 
+    def get_organization(self, id):
+        return self.organizations[id]
+
     def print_organization(self, id):
-        clearprint(self.organizations[id])
+        print(self.organizations[id])
 
     def print_all_organizations(self):
-        clearprint('\n'.join(str(self.organizations[id]) for id in sorted(self.organizations.keys())))
+        print('\n'.join(str(self.organizations[id]) for id in sorted(self.organizations.keys())))
 
     def create_organization(self, name, latitude, longitude):
         organization = self.pipedriver.create_organization(name, latitude, longitude)
@@ -83,14 +87,14 @@ class CrudTool:
 
     def edit_organization(self, id, name = None, latitude = None, longitude = None):
         self.organizations[id] = self.pipedriver.update_organization(id, name, latitude, longitude)
-
+    
     def delete_organization(self, id):
         self.pipedriver.delete_organization(id)
         del self.organizations[id]
 
     def find_nearest(self, latitude, longitude):
         # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
-        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latitude, org.longitude)))
+        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latitude, org.longitude)))        
         shortest = distance((latitude, longitude), (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
         out = []
 
@@ -99,7 +103,7 @@ class CrudTool:
                 out.append(organization.id)
             else:
                 break
-
+        
         return out
 
 if __name__ == '__main__':
@@ -237,8 +241,11 @@ if __name__ == '__main__':
                     longitude = float(input())
                 except Exception:
                     pass
+                    
+            for id in crudtool.find_nearest(latitude, longitude):
+                organization = crudtool.get_organization(id)
+                print(sNearestReport.format(organization, ('%.2f' % distance((latitude, longitude), (organization.latitude, organization.longitude)))))
 
-            print('\n'.join(crudtool.print_organization(id) for id in crudtool.find_nearest(latitude, longitude)))            
         elif command == 'exit':
             break
         else:
