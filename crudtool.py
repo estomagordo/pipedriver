@@ -192,7 +192,7 @@ def edit_command(instruction, crudtool):
                     longitude = longitude if longitude_legal(longitude) else organization.longitude
 
                     crudtool.edit_organization(id, name, latitude, longitude)
-                    
+
                     print(sEditSuccessful)
             else:
                 print(sNotFound.format(id))
@@ -234,7 +234,7 @@ def find_command(crudtool):
         except Exception:
             pass
             
-    for id in crudtool.find_nearest(latitude, longitude):
+    for id in crudtool.find_nearest((latitude, longitude)):
         organization = crudtool.get_organization(id)
         d = distance((latitude, longitude), (organization.latitude, organization.longitude))
         print(sNearestReport.format(organization, ('%.2f' % d)))
