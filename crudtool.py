@@ -92,14 +92,14 @@ class CrudTool:
         self.pipedriver.delete_organization(id)
         del self.organizations[id]
 
-    def find_nearest(self, latitude, longitude):
+    def find_nearest(self, point):
         # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
-        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance((latitude, longitude), (org.latitude, org.longitude)))        
-        shortest = distance((latitude, longitude), (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
+        sorted_organizations = sorted(self.organizations.values(), key = lambda org: distance(point, (org.latitude, org.longitude)))        
+        shortest = distance(point, (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
         out = []
 
         for organization in sorted_organizations:
-            if distance((latitude, longitude), (organization.latitude, organization.longitude)) == shortest:
+            if distance(point, (organization.latitude, organization.longitude)) == shortest:
                 out.append(organization.id)
             else:
                 break
@@ -209,7 +209,7 @@ def delete_command(instruction):
     else:
         print(sInvalid)
 
-def find_command():
+def find_command(crudtool):
     latitude = 1000.0
     longitude = 1000.0
 
@@ -229,9 +229,16 @@ def find_command():
             
     for id in crudtool.find_nearest(latitude, longitude):
         organization = crudtool.get_organization(id)
-        print(sNearestReport.format(organization, ('%.2f' % distance((latitude, longitude), (organization.latitude, organization.longitude)))))
+        d = distance((latitude, longitude), (organization.latitude, organization.longitude))
+        print(sNearestReport.format(organization, ('%.2f' % d)))
 
-def main_loop():
+if __name__ == '__main__':
+    print(sConnecting)
+    crudtool = CrudTool(api_key)
+    print(sSuccessful)
+    print(len(crudtool.organizations), sOrgsInDb)
+    print(sInstructions)
+    
     while True:
         instruction = input().split()
         command = instruction[0]
@@ -249,17 +256,8 @@ def main_loop():
         elif command == 'delete':
             delete_command(instruction)
         elif command == 'find':
-            find_command()
+            find_command(crudtool)
         elif command == 'exit':
             break
         else:
             print('Please enter a valid command')
-
-if __name__ == '__main__':
-    print(sConnecting)
-    crudtool = CrudTool(api_key)
-    print(sSuccessful)
-    print(len(crudtool.organizations), sOrgsInDb)
-    print(sInstructions)
-    
-    main_loop()
