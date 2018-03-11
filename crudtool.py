@@ -106,6 +106,155 @@ class CrudTool:
         
         return out
 
+def help_command():
+    clearprint(sInstructions)
+
+def list_command():
+    crudtool.print_all_organizations()
+
+def create_command():
+    name = ''
+    latitude = 1000.0
+    longitude = 1000.0
+    
+    while not name:
+        print(sEnterName)
+        name = input().strip()
+    
+    while not latitude_legal(latitude):
+        print(sEnterLatitude)
+        try:
+            latitude = float(input())
+        except Exception:
+            pass
+
+    while not longitude_legal(longitude):
+        print(sEnterLongitude)
+        try:
+            longitude = float(input())
+        except Exception:
+            pass
+
+    crudtool.create_organization(name, latitude, longitude)
+    print(sCreationSuccessful)
+
+def view_command(instruction):
+    if len(instruction) == 2:
+        if instruction[1].isdigit():
+            id = int(instruction[1])
+            if crudtool.contains_organization(id):
+                crudtool.print_organization(id)
+            else:
+                print(sNotFound.format(id))
+        else:
+            print(sInvalid)
+    else:
+        print(sInvalid)
+
+def edit_command(instruction):
+    if len(instruction) == 2:
+        if instruction[1].isdigit():
+            id = int(instruction[1])
+            if crudtool.contains_organization(id):
+                print(sEnterEditName)
+                name = input()                                                
+                
+                latitude = 1000.0
+                longitude = 1000.0
+
+                while not latitude_legal(latitude):
+                    print(sEnterEditLatitude)
+                    latString = input()
+                    if not latString:
+                        break
+                    try:
+                        latitude = float(latString)
+                    except Exception:
+                        pass
+
+                while not longitude_legal(longitude):
+                    print(sEnterEditLongitude)
+                    longString = input()
+                    if not longString:
+                        break
+                    try:
+                        longitude = float(longString)
+                    except Exception:
+                        pass
+
+                if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
+                    print(sNothingChanged)
+                else:
+                    crudtool.edit_organization(id, name or None, latitude if latitude_legal(latitude) else None, longitude if longitude_legal(longitude) else None)
+                    print(sEditSuccessful)
+            else:
+                print(sNotFound.format(id))
+        else:
+            print(sInvalid)
+    else:
+        print(sInvalid)
+
+def delete_command(instruction):
+    # Should probably have a confirmation step.
+    if len(instruction) == 2:
+        if instruction[1].isdigit():
+            id = int(instruction[1])
+            if crudtool.contains_organization(id):
+                crudtool.delete_organization(id)
+                print(sDeletionSuccessful)
+            else:
+                print(sNotFound.format(id))
+        else:
+            print(sInvalid)
+    else:
+        print(sInvalid)
+
+def find_command():
+    latitude = 1000.0
+    longitude = 1000.0
+
+    while not latitude_legal(latitude):
+        print(sEnterLatitude)
+        try:
+            latitude = float(input())
+        except Exception:
+            pass
+
+    while not longitude_legal(longitude):
+        print(sEnterLongitude)
+        try:
+            longitude = float(input())
+        except Exception:
+            pass
+            
+    for id in crudtool.find_nearest(latitude, longitude):
+        organization = crudtool.get_organization(id)
+        print(sNearestReport.format(organization, ('%.2f' % distance((latitude, longitude), (organization.latitude, organization.longitude)))))
+
+def main_loop():
+    while True:
+        instruction = input().split()
+        command = instruction[0]
+
+        if command == 'help':
+            help_command()
+        elif command == 'list':
+            list_command()
+        elif command == 'create':
+            create_command()
+        elif command == 'view':
+            view_command(instruction)
+        elif command == 'edit':
+            edit_command(instruction)
+        elif command == 'delete':
+            delete_command(instruction)
+        elif command == 'find':
+            find_command()
+        elif command == 'exit':
+            break
+        else:
+            print('Please enter a valid command')
+
 if __name__ == '__main__':
     print(sConnecting)
     crudtool = CrudTool(api_key)
@@ -113,140 +262,4 @@ if __name__ == '__main__':
     print(len(crudtool.organizations), sOrgsInDb)
     print(sInstructions)
     
-    while True:
-        instruction = input().split()
-        command = instruction[0]
-
-        if command == 'help':
-            clearprint(sInstructions)
-            continue
-        elif command == 'list':
-            crudtool.print_all_organizations()
-            continue
-        elif command == 'create':
-            if len(instruction) > 1:
-                print(sInvalid)
-            else:
-                name = ''
-                latitude = 1000.0
-                longitude = 1000.0
-                
-                while not name:
-                    print(sEnterName)
-                    name = input().strip()
-                
-                while not latitude_legal(latitude):
-                    print(sEnterLatitude)
-                    try:
-                        latitude = float(input())
-                    except Exception:
-                        pass
-
-                while not longitude_legal(longitude):
-                    print(sEnterLongitude)
-                    try:
-                        longitude = float(input())
-                    except Exception:
-                        pass
-
-                crudtool.create_organization(name, latitude, longitude)
-                print(sCreationSuccessful)
-
-            continue
-        elif command == 'view':
-            if len(instruction) == 2:
-                if instruction[1].isdigit():
-                    id = int(instruction[1])
-                    if crudtool.contains_organization(id):
-                        crudtool.print_organization(id)
-                    else:
-                        print(sNotFound.format(id))
-                else:
-                    print(sInvalid)
-            else:
-                print(sInvalid)
-            continue
-        elif command == 'edit':
-            if len(instruction) == 2:
-                if instruction[1].isdigit():
-                    id = int(instruction[1])
-                    if crudtool.contains_organization(id):
-                        print(sEnterEditName)
-                        name = input()                                                
-                        
-                        latitude = 1000.0
-                        longitude = 1000.0
-
-                        while not latitude_legal(latitude):
-                            print(sEnterEditLatitude)
-                            latString = input()
-                            if not latString:
-                                break
-                            try:
-                                latitude = float(latString)
-                            except Exception:
-                                pass
-
-                        while not longitude_legal(longitude):
-                            print(sEnterEditLongitude)
-                            longString = input()
-                            if not longString:
-                                break
-                            try:
-                                longitude = float(longString)
-                            except Exception:
-                                pass
-
-                        if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
-                            print(sNothingChanged)
-                        else:
-                            crudtool.edit_organization(id, name or None, latitude if latitude_legal(latitude) else None, longitude if longitude_legal(longitude) else None)
-                            print(sEditSuccessful)
-                    else:
-                        print(sNotFound.format(id))
-                else:
-                    print(sInvalid)
-            else:
-                print(sInvalid)
-            continue
-        elif command == 'delete':
-            # Should probably have a confirmation step.
-            if len(instruction) == 2:
-                if instruction[1].isdigit():
-                    id = int(instruction[1])
-                    if crudtool.contains_organization(id):
-                        crudtool.delete_organization(id)
-                        print(sDeletionSuccessful)
-                    else:
-                        print(sNotFound.format(id))
-                else:
-                    print(sInvalid)
-            else:
-                print(sInvalid)
-            continue
-        elif command == 'find':
-            latitude = 1000.0
-            longitude = 1000.0
-
-            while not latitude_legal(latitude):
-                print(sEnterLatitude)
-                try:
-                    latitude = float(input())
-                except Exception:
-                    pass
-
-            while not longitude_legal(longitude):
-                print(sEnterLongitude)
-                try:
-                    longitude = float(input())
-                except Exception:
-                    pass
-                    
-            for id in crudtool.find_nearest(latitude, longitude):
-                organization = crudtool.get_organization(id)
-                print(sNearestReport.format(organization, ('%.2f' % distance((latitude, longitude), (organization.latitude, organization.longitude)))))
-
-        elif command == 'exit':
-            break
-        else:
-            print('Please enter a valid command')
+    main_loop()
