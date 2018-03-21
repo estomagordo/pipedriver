@@ -3,7 +3,6 @@ from organization import Organization
 from pipedriver import PipeDriver
 from math import radians, cos, sin, atan2, sqrt
 
-api_key = 'a7098337502aacd4a642156eb8131e48eb8b7d31'
 earth_radius = 6371
 
 sConnecting = 'Connecting to Pipe Drive'
@@ -31,6 +30,11 @@ sEnterEditLongitude = 'Enter new longitude. Press enter to keep as is.'
 sNothingChanged = 'Nothing changed. Update skipped.'
 sEditSuccessful = 'Edit successful!'
 sNearestReport = '{0} {1} km away.'
+
+
+def get_api_key():
+    with open('apikey.txt') as f:
+        return f.read().strip()
 
 
 def clear():
@@ -254,6 +258,7 @@ def find_command(crudtool):
 
 
 if __name__ == '__main__':
+    api_key = get_api_key()
     print(sConnecting)
     crudtool = CrudTool(api_key)
     print(sSuccessful)
