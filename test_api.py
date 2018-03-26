@@ -7,14 +7,14 @@ def get_api_key():
         return f.read().strip()
 
 
-def connect_test():
+def test_connect():
     api_key = get_api_key()
     crudtool = CrudTool(api_key)
 
     assert(True)
 
 
-def create_and_delete_test():
+def test_create_and_delete():
     api_key = get_api_key()
     crudtool = CrudTool(api_key)
 
