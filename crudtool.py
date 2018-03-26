@@ -4,6 +4,7 @@ from pipedriver import PipeDriver
 from math import radians, cos, sin, atan2, sqrt
 
 earth_radius = 6371
+epsilon = 0.000001
 
 sConnecting = 'Connecting to Pipe Drive'
 sSuccessful = 'Successful!'
@@ -112,7 +113,9 @@ class CrudTool:
         out = []
 
         for organization in sorted_organizations:
-            if distance(point, (organization.latitude, organization.longitude)) == shortest:
+            orgpoint = (organization.latitude, organization.longitude)
+            orgdist = distance(point, orgpoint)
+            if abs(orgdist - shortest) < epsilon:  # Handling rounding errors
                 out.append(organization.id)
             else:
                 break
