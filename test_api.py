@@ -2,20 +2,18 @@ import pytest
 from orgmanager import OrgManager
 
 
-def get_api_key():
-    with open('apikey.txt') as f:
-        return f.read().strip()
+@pytest.fixture
+def orgmanager():
+    return OrgManager()
 
 
-def test_connect():
+def test_connect(orgmanager):
     orgmanager = OrgManager()
 
     assert(True)
 
 
-def test_create_and_delete():
-    orgmanager = OrgManager()
-
+def test_create_and_delete(orgmanager):
     pre_count = len(orgmanager.get_all())
     new_id = orgmanager.create('testing, just testing', 0.0, 0.2).id
     create_count = len(orgmanager.get_all())
@@ -26,9 +24,7 @@ def test_create_and_delete():
     assert(delete_count == pre_count)
 
 
-def test_update():
-    orgmanager = OrgManager()
-
+def test_update(orgmanager):
     id = orgmanager.create('testing, just testing', 0.0, 0.2).id
 
     new_name = 'new testing'
@@ -46,9 +42,7 @@ def test_update():
     assert(organization.longitude == new_long)
 
 
-def test_may_return_multiple_nearest():
-    orgmanager = OrgManager()
-
+def test_may_return_multiple_nearest(orgmanager):
     id1 = orgmanager.create('testing 1', 75.75, -76.0).id
     id2 = orgmanager.create('testing 2', 75.75, -76.20).id
 
