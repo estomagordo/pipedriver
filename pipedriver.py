@@ -3,7 +3,10 @@ from organization import Organization
 
 
 class PipeDriver:
-    base_url = 'https://companydomain.pipedrive.com/v1/'
+    base_url = 'https://companydomain.pipedrive.com/v1/organizations/'
+
+    def __init__(self, api_token):
+        self.params = {'api_token': api_token}
 
     def coords_to_address(self, latitude, longitude):
         return str(latitude) + ',' + str(longitude)
@@ -11,21 +14,19 @@ class PipeDriver:
     def address_to_coords(self, address):
         return [float(coord) for coord in address.split(',')]
 
-    def __init__(self, api_token):
-        self.params = {'api_token': api_token}
-
     def get_organization(self, id):
-        response = requests.get(self.base_url + 'organizations/' + str(id), params=self.params)
-        response.raise_for_status()
-        data = response.json()['data']
+        response = requests.get(self.base_url + str(id), params=self.params)
 
+        response.raise_for_status()
+
+        data = response.json()['data']
         name = data['name']
         latitude, longitude = self.address_to_coords(data['address'])
 
         return Organization(id, name, latitude, longitude)
 
     def get_organizations(self):
-        response = requests.get(self.base_url + 'organizations', params=self.params)
+        response = requests.get(self.base_url, params=self.params)
 
         response.raise_for_status()
 
@@ -45,9 +46,10 @@ class PipeDriver:
     def create_organization(self, name, latitude, longitude):
         address = self.coords_to_address(latitude, longitude)
         data = {'name': name, 'address': address}
-        response = requests.post(self.base_url + 'organizations', data=data, params=self.params)
+        response = requests.post(self.base_url, data=data, params=self.params)
 
         response.raise_for_status()
+
         id = response.json()['data']['id']
 
         organization = Organization(id, name, latitude, longitude)
@@ -55,9 +57,7 @@ class PipeDriver:
         return organization
 
     def delete_organization(self, id):
-        response = requests.delete(
-                                   self.base_url + 'organizations/' + str(id),
-                                   params=self.params)
+        response = requests.delete(self.base_url + str(id), params=self.params)
 
         response.raise_for_status()
 
@@ -69,7 +69,7 @@ class PipeDriver:
         data = {'name': name, 'address': address}
 
         response = requests.put(
-                                self.base_url + 'organizations/' + str(id),
+                                self.base_url + str(id),
                                 data=data, params=self.params)
 
         response.raise_for_status()
