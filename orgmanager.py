@@ -51,14 +51,14 @@ class OrgManager:
         return [self.organizations[key] for key in sorted(self.organizations)]
 
     def get(self, id):
-        return self.organizations[id]   
+        return self.organizations[id]
 
     def create(self, name, latitude, longitude):
         try:
             organization = self.pipedriver.create_organization(name, latitude, longitude)
             self.organizations[organization.id] = organization
             return organization
-        except Exception:            
+        except Exception:
             raise
 
     def edit(self, id, name, latitude, longitude):

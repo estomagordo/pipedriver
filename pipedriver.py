@@ -46,7 +46,7 @@ class PipeDriver:
     def create_organization(self, name, latitude, longitude):
         address = self.coords_to_address(latitude, longitude)
         data = {'name': name, 'address': address}
-        
+
         response = requests.post(self.base_url, data=data, params=self.params)
 
         response.raise_for_status()

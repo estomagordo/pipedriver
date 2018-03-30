@@ -28,6 +28,8 @@ sNothingChanged = 'Nothing changed. Update skipped.'
 sEditSuccessful = 'Edit successful!'
 sNearestReport = '{0} {1} km away.'
 sConnectionFailed = 'Connection to Pipe Drive failed. Please try again later.'
+sDeleteConfirm = 'Are you sure you want to delete {0} (y/n)?'
+sDeletionSkipped = 'Deletion skipped.'
 
 
 def clear():
@@ -157,23 +159,31 @@ def edit_command(orgmanager, instruction):
 
 
 def delete_command(orgmanager, instruction):
-    # Should probably have a confirmation step.
-    if len(instruction) == 2:
-        if instruction[1].isdigit():
-            id = int(instruction[1])
-            if orgmanager.contains(id):
-                try:
-                    orgmanager.delete(id)
-                    print(sDeletionSuccessful)
-                except Exception:
-                    print(sConnectionFailed)
-                    exit(1)
-            else:
-                print(sNotFound.format(id))
-        else:
-            print(sInvalid)
-    else:
+    if len(instruction) != 2 or not instruction[1].isdigit():
         print(sInvalid)
+        return
+
+    id = int(instruction[1])
+
+    if orgmanager.contains(id):
+        confirmation = ''
+
+        while confirmation not in ['Y', 'y', 'N', 'n']:
+            print(sDeleteConfirm.format(orgmanager.get(id).name))
+            confirmation = input().strip()
+
+        if confirmation in ['N', 'n']:
+            print(sDeletionSkipped)
+            return
+
+        try:
+            orgmanager.delete(id)
+            print(sDeletionSuccessful)
+        except Exception:
+            print(sConnectionFailed)
+            exit(1)
+    else:
+        print(sNotFound.format(id))
 
 
 def find_command(orgmanager):
@@ -203,7 +213,7 @@ def find_command(orgmanager):
 
 if __name__ == '__main__':
     print(sConnecting)
-    
+
     try:
         orgmanager = OrgManager()
     except Exception:
