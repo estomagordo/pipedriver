@@ -1,5 +1,6 @@
 import os
 from orgmanager import OrgManager
+from sys import exit
 
 sConnecting = 'Connecting to Pipe Drive'
 sSuccessful = 'Successful!'
@@ -26,6 +27,7 @@ sEnterEditLongitude = 'Enter new longitude. Press enter to keep as is.'
 sNothingChanged = 'Nothing changed. Update skipped.'
 sEditSuccessful = 'Edit successful!'
 sNearestReport = '{0} {1} km away.'
+sConnectionFailed = 'Connection to Pipe Drive failed. Please try again later.'
 
 
 def clear():
@@ -77,8 +79,12 @@ def create_command(orgmanager):
         except Exception:
             pass
 
-    orgmanager.create(name, latitude, longitude)
-    print(sCreationSuccessful)
+    try:
+        orgmanager.create(name, latitude, longitude)
+        print(sCreationSuccessful)
+    except Exception:
+        print(sConnectionFailed)
+        exit(1)
 
 
 def view_command(orgmanager, instruction):
@@ -136,9 +142,12 @@ def edit_command(orgmanager, instruction):
                     latitude = latitude if lat_legal(latitude) else organization.latitude
                     longitude = longitude if long_legal(longitude) else organization.longitude
 
-                    orgmanager.edit(id, name, latitude, longitude)
-
-                    print(sEditSuccessful)
+                    try:
+                        orgmanager.edit(id, name, latitude, longitude)
+                        print(sEditSuccessful)
+                    except Exception:
+                        print(sConnectionFailed)
+                        exit(1)
             else:
                 print(sNotFound.format(id))
         else:
@@ -153,8 +162,12 @@ def delete_command(orgmanager, instruction):
         if instruction[1].isdigit():
             id = int(instruction[1])
             if orgmanager.contains(id):
-                orgmanager.delete(id)
-                print(sDeletionSuccessful)
+                try:
+                    orgmanager.delete(id)
+                    print(sDeletionSuccessful)
+                except Exception:
+                    print(sConnectionFailed)
+                    exit(1)
             else:
                 print(sNotFound.format(id))
         else:
@@ -190,7 +203,13 @@ def find_command(orgmanager):
 
 if __name__ == '__main__':
     print(sConnecting)
-    orgmanager = OrgManager()
+    
+    try:
+        orgmanager = OrgManager()
+    except Exception:
+        print(sConnectionFailed)
+        exit(1)
+
     print(sSuccessful)
     print(orgmanager.count(), sOrgsInDb)
     print(sInstructions)

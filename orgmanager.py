@@ -35,8 +35,11 @@ def great_circle_distance(point_a, point_b):
 class OrgManager:
 
     def __init__(self):
-        self.pipedriver = PipeDriver(get_api_key())
-        self.organizations = self.pipedriver.get_organizations()
+        try:
+            self.pipedriver = PipeDriver(get_api_key())
+            self.organizations = self.pipedriver.get_organizations()
+        except Exception:
+            raise
 
     def contains(self, id):
         return id in self.organizations
@@ -51,18 +54,28 @@ class OrgManager:
         return self.organizations[id]   
 
     def create(self, name, latitude, longitude):
-        organization = self.pipedriver.create_organization(name, latitude, longitude)
-        self.organizations[organization.id] = organization
-        return organization
+        try:
+            organization = self.pipedriver.create_organization(name, latitude, longitude)
+            self.organizations[organization.id] = organization
+            return organization
+        except Exception:            
+            raise
 
     def edit(self, id, name, latitude, longitude):
-        self.organizations[id] = self.pipedriver.update_organization(id, name, latitude, longitude)
-        return self.get(id)
+        try:
+            organization = self.pipedriver.update_organization(id, name, latitude, longitude)
+            self.organizations[id] = organization
+            return organization
+        except Exception:
+            raise
 
     def delete(self, id):
-        self.pipedriver.delete_organization(id)
-        del self.organizations[id]
-        return True
+        try:
+            self.pipedriver.delete_organization(id)
+            del self.organizations[id]
+            return True
+        except Exception:
+            raise
 
     def find_nearest(self, point):
         sorted_orgs = sorted(
