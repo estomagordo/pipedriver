@@ -55,7 +55,10 @@ class PipeDriver:
         return organization
 
     def delete_organization(self, id):
-        response = requests.delete(self.base_url + 'organizations/' + str(id), params=self.params)
+        response = requests.delete(
+                                   self.base_url + 'organizations/' + str(id),
+                                   params=self.params)
+
         response.raise_for_status()
 
         return True
@@ -65,7 +68,9 @@ class PipeDriver:
         address = self.coords_to_address(latitude, longitude)
         data = {'name': name, 'address': address}
 
-        response = requests.put(self.base_url + 'organizations/' + str(id), data=data, params=self.params)
+        response = requests.put(
+                                self.base_url + 'organizations/' + str(id),
+                                data=data, params=self.params)
 
         response.raise_for_status()
 

@@ -52,4 +52,3 @@ def test_may_return_multiple_nearest(orgmanager):
     orgmanager.delete(id2)
 
     assert(len(nearest) == 2)
-    

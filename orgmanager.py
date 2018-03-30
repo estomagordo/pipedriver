@@ -18,10 +18,15 @@ def great_circle_distance(point_a, point_b):
     along = radians(point_a[1])
     blong = radians(point_b[1])
 
-    deltalat = blat - alat
-    deltalong = blong - along
+    dlat = blat - alat
+    dlong = blong - along
 
-    a = sin(deltalat / 2) * sin(deltalat / 2) + cos(alat) * cos(blat) * sin(deltalong / 2) * sin(deltalong / 2)
+    a = (
+        sin(dlat / 2) *
+        sin(dlat / 2) + cos(alat) *
+        cos(blat) * sin(dlong / 2) *
+        sin(dlong / 2))
+
     c = 2 * atan2(sqrt(a), sqrt(1-a))
 
     return earth_radius * c
@@ -69,8 +74,8 @@ class OrgManager:
         sorted_orgs = sorted(
             (great_circle_distance(point, (org.latitude, org.longitude)), org)
             for org in self.organizations.values())
-                
-        shortest_distance = sorted_orgs[0][0]        
+
+        shortest_distance = sorted_orgs[0][0]
         nearest = []
 
         for distance, organization in sorted_orgs:
@@ -80,4 +85,3 @@ class OrgManager:
             break
 
         return shortest_distance, nearest
-        

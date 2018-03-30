@@ -37,11 +37,11 @@ def clearprint(s):
     print(s)
 
 
-def latitude_legal(latitude):
+def lat_legal(latitude):
     return -90.0 <= latitude <= 90.0
 
 
-def longitude_legal(longitude):
+def long_legal(longitude):
     return -180.0 <= longitude <= 180.0
 
 
@@ -62,14 +62,14 @@ def create_command(orgmanager):
         print(sEnterName)
         name = input().strip()
 
-    while not latitude_legal(latitude):
+    while not lat_legal(latitude):
         print(sEnterLatitude)
         try:
             latitude = float(input())
         except Exception:
             pass
 
-    while not longitude_legal(longitude):
+    while not long_legal(longitude):
         print(sEnterLongitude)
         try:
             longitude = float(input())
@@ -105,7 +105,7 @@ def edit_command(orgmanager, instruction):
                 latitude = 1000.0
                 longitude = 1000.0
 
-                while not latitude_legal(latitude):
+                while not lat_legal(latitude):
                     print(sEnterEditLatitude)
                     latString = input()
                     if not latString:
@@ -115,7 +115,7 @@ def edit_command(orgmanager, instruction):
                     except Exception:
                         pass
 
-                while not longitude_legal(longitude):
+                while not long_legal(longitude):
                     print(sEnterEditLongitude)
                     longString = input()
                     if not longString:
@@ -125,14 +125,15 @@ def edit_command(orgmanager, instruction):
                     except Exception:
                         pass
 
-                if not name and not latitude_legal(latitude) and not longitude_legal(longitude):
+                changed = name or lat_legal(latitude) or long_legal(longitude)
+                if not changed:
                     print(sNothingChanged)
                 else:
                     organization = orgmanager.get(id)
 
                     name = name if name else organization.name
-                    latitude = latitude if latitude_legal(latitude) else organization.latitude
-                    longitude = longitude if longitude_legal(longitude) else organization.longitude
+                    latitude = latitude if lat_legal(latitude) else organization.latitude
+                    longitude = longitude if long_legal(longitude) else organization.longitude
 
                     orgmanager.edit(id, name, latitude, longitude)
 
@@ -165,14 +166,14 @@ def find_command(orgmanager):
     latitude = 1000.0
     longitude = 1000.0
 
-    while not latitude_legal(latitude):
+    while not lat_legal(latitude):
         print(sEnterLatitude)
         try:
             latitude = float(input())
         except Exception:
             pass
 
-    while not longitude_legal(longitude):
+    while not long_legal(longitude):
         print(sEnterLongitude)
         try:
             longitude = float(input())
