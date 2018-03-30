@@ -50,7 +50,8 @@ def help_command():
 
 
 def list_command(orgmanager):
-    orgmanager.print_all()
+    organizations = orgmanager.get_all()
+    print('\n'.join(map(str, organizations)))
 
 
 def create_command(orgmanager):

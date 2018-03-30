@@ -45,16 +45,10 @@ class OrgManager:
         return len(self.organizations)
 
     def get_all(self):
-        return self.organizations
+        return [self.organizations[key] for key in sorted(self.organizations)]
 
     def get(self, id):
-        return self.organizations[id]
-
-    def print(self, id):
-        print(self.organizations[id])
-
-    def print_all(self):
-        print('\n'.join(str(self.organizations[id]) for id in sorted(self.organizations.keys())))
+        return self.organizations[id]   
 
     def create(self, name, latitude, longitude):
         organization = self.pipedriver.create_organization(name, latitude, longitude)
