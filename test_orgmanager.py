@@ -16,9 +16,9 @@ def test_connect(orgmanager):
 def test_create_and_delete(orgmanager):
     pre_count = len(orgmanager.get_all())
     new_id = orgmanager.create('testing, just testing', 0.0, 0.2).id
-    create_count = len(orgmanager.get_all())
+    create_count = orgmanager.count()
     orgmanager.delete(new_id)
-    delete_count = len(orgmanager.get_all())
+    delete_count = orgmanager.count()
 
     assert(create_count == pre_count + 1)
     assert(delete_count == pre_count)
