@@ -11,7 +11,7 @@ def get_api_key():
         return f.read().strip()
 
 
-def distance(point_a, point_b):
+def great_circle_distance(point_a, point_b):
     # From: https://www.movable-type.co.uk/scripts/latlong.html
     alat = radians(point_a[0])
     blat = radians(point_b[0])
@@ -66,17 +66,18 @@ class OrgManager:
         return True
 
     def find_nearest(self, point):
-        # Does distance calculations several times over, for brevity, which isn't horrible seeing how few orgs there likely are.
-        sorted_organizations = sorted(self.organizations.values(), key=lambda org: distance(point, (org.latitude, org.longitude)))
-        shortest = distance(point, (sorted_organizations[0].latitude, sorted_organizations[0].longitude))
-        out = []
+        sorted_orgs = sorted(
+            (great_circle_distance(point, (org.latitude, org.longitude)), org)
+            for org in self.organizations.values())
+                
+        shortest_distance = sorted_orgs[0][0]        
+        nearest = []
 
-        for organization in sorted_organizations:
-            orgpoint = (organization.latitude, organization.longitude)
-            orgdist = distance(point, orgpoint)
-            if abs(orgdist - shortest) < epsilon:  # Handling rounding errors
-                out.append(organization)
-            else:
-                break
+        for distance, organization in sorted_orgs:
+            if abs(distance - shortest_distance) < epsilon:  # Handling rounding errors
+                nearest.append(organization)
+                continue
+            break
 
-        return shortest, out
+        return shortest_distance, nearest
+        
