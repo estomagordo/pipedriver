@@ -75,8 +75,8 @@ class OrgManager:
             orgpoint = (organization.latitude, organization.longitude)
             orgdist = distance(point, orgpoint)
             if abs(orgdist - shortest) < epsilon:  # Handling rounding errors
-                out.append(organization.id)
+                out.append(organization)
             else:
                 break
 
-        return out
+        return shortest, out

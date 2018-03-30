@@ -179,10 +179,11 @@ def find_command(orgmanager):
         except Exception:
             pass
 
-    for id in orgmanager.find_nearest((latitude, longitude)):
-        organization = orgmanager.get(id)
-        d = distance((latitude, longitude), (organization.latitude, organization.longitude))
-        print(sNearestReport.format(organization, ('%.2f' % d)))
+    point = (latitude, longitude)
+    shortest_distance, nearest_organizations = orgmanager.find_nearest(point)
+
+    for organization in nearest_organizations:
+        print(sNearestReport.format(organization, ('%.2f' % shortest_distance)))
 
 
 if __name__ == '__main__':
