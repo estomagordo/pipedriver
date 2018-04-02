@@ -95,7 +95,7 @@ def view_command(orgmanager, instruction):
     if len(instruction) != 2 or not instruction[1].isdigit():
         print(sInvalid)
         return
-    
+
     id = int(instruction[1])
 
     if orgmanager.contains(id):
@@ -108,7 +108,7 @@ def edit_command(orgmanager, instruction):
     if len(instruction) != 2 or not instruction[1].isdigit():
         print(sInvalid)
         return
-    
+
     id = int(instruction[1])
 
     if not orgmanager.contains(id):
@@ -158,7 +158,7 @@ def edit_command(orgmanager, instruction):
         print(sEditSuccessful)
     except Exception:
         print(sConnectionFailed)
-        exit(1)        
+        exit(1)
 
 
 def delete_command(orgmanager, instruction):
@@ -187,7 +187,7 @@ def delete_command(orgmanager, instruction):
         print(sDeletionSuccessful)
     except Exception:
         print(sConnectionFailed)
-        exit(1)        
+        exit(1)
 
 
 def find_command(orgmanager):
