@@ -2,10 +2,12 @@ import os
 from orgmanager import OrgManager
 from sys import exit
 
+listlimit = 50
+
 sInstructions = '''Command list:
 
 help - repeat this message
-list - list all organizations
+list - list all organizations (limited at {0})
 create - create new organization
 view [id] - view organization [id]
 edit [id] - edit organization [id]
@@ -14,13 +16,13 @@ find - find the nearest organization(s) for coordinates
 exit - exit this program
 '''
 sConnecting = 'Connecting to Pipe Drive\n'
-sSuccessful = 'Successful!\n'
+sSuccessful = 'Connection successful!\n'
 sOrgsInDb = 'organizations in database.\n'
 sInvalid = 'Invalid command, please try again.'
 sEnterName = 'Please enter a name.'
 sEnterLatitude = 'Please enter a valid latitude.'
 sEnterLongitude = 'Please enter a valid longitude.'
-sCreationSuccessful = 'Creation successful!'
+sCreationSuccessful = 'Successfully created organization {0} with id {1}!'
 sNotFound = 'Organization with id {0} not found.'
 sDeletionSuccessful = 'Deletion successful!'
 sEnterEditName = 'Enter new name. Press enter to keep as is.'
@@ -47,7 +49,7 @@ class CrudTool:
         print(self.orgmanager.count(), sOrgsInDb)
 
     def run(self):
-        print(sInstructions)
+        print(sInstructions.format(listlimit))
 
         while True:
             instruction = input().split()
@@ -86,10 +88,10 @@ class CrudTool:
         return -180.0 <= longitude <= 180.0
 
     def help_command(self):
-        self.clearprint(sInstructions)
+        self.clearprint(sInstructions.format(listlimit))
 
     def list_command(self):
-        organizations = self.orgmanager.get_all()
+        organizations = self.orgmanager.get_all()[:listlimit]
         print('\n'.join(map(str, organizations)))
 
     def create_command(self):
@@ -116,8 +118,8 @@ class CrudTool:
                 pass
 
         try:
-            self.orgmanager.create(name, latitude, longitude)
-            print(sCreationSuccessful)
+            organization = self.orgmanager.create(name, latitude, longitude)
+            print(sCreationSuccessful.format(organization.name, organization.id))
         except Exception:
             print(sConnectionFailed)
             exit(1)
