@@ -35,8 +35,11 @@ def great_circle_distance(point_a, point_b):
 class OrgManager:
 
     def __init__(self):
+        self.pipedriver = PipeDriver(get_api_key())
+        self.update()
+
+    def update(self):
         try:
-            self.pipedriver = PipeDriver(get_api_key())
             self.organizations = self.pipedriver.get_organizations()
         except Exception:
             raise
