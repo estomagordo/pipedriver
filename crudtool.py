@@ -34,219 +34,215 @@ sDeleteConfirm = 'Are you sure you want to delete {0} (y/n)?'
 sDeletionSkipped = 'Deletion skipped.'
 
 
-def clear():
-    dummy = os.system('cls' if os.name == 'nt' else 'clear')
-
-
-def clearprint(s):
-    clear()
-    print(s)
-
-
-def lat_legal(latitude):
-    return -90.0 <= latitude <= 90.0
-
-
-def long_legal(longitude):
-    return -180.0 <= longitude <= 180.0
-
-
-def help_command():
-    clearprint(sInstructions)
-
-
-def list_command(orgmanager):
-    organizations = orgmanager.get_all()
-    print('\n'.join(map(str, organizations)))
-
-
-def create_command(orgmanager):
-    name = ''  # Some arbitrary invalid value
-    latitude = 1000.0  # Some arbitrary invalid value
-    longitude = 1000.0  # Some arbitrary invalid value
-
-    while not name:
-        print(sEnterName)
-        name = input().strip()
-
-    while not lat_legal(latitude):
-        print(sEnterLatitude)
+class CrudTool:
+    def __init__(self):
+        print(sConnecting)
         try:
-            latitude = float(input())
+            self.orgmanager = OrgManager()
         except Exception:
-            pass
+            print(sConnectionFailed)
+            exit(1)
 
-    while not long_legal(longitude):
-        print(sEnterLongitude)
+        print(sSuccessful)
+        print(self.orgmanager.count(), sOrgsInDb)
+
+    def run(self):
+        print(sInstructions)
+
+        while True:
+            instruction = input().split()
+            command = instruction[0]
+
+            if command == 'help':
+                self.help_command()
+            elif command == 'list':
+                self.list_command()
+            elif command == 'create':
+                self.create_command()
+            elif command == 'view':
+                self.view_command(instruction)
+            elif command == 'edit':
+                self.edit_command(instruction)
+            elif command == 'delete':
+                self.delete_command(instruction)
+            elif command == 'find':
+                self.find_command()
+            elif command == 'exit':
+                break
+            else:
+                print('Please enter a valid command')
+
+    def clear(self):
+        dummy = os.system('cls' if os.name == 'nt' else 'clear')
+
+    def clearprint(self, s):
+        self.clear()
+        print(s)
+
+    def lat_legal(self, latitude):
+        return -90.0 <= latitude <= 90.0
+
+    def long_legal(self, longitude):
+        return -180.0 <= longitude <= 180.0
+
+    def help_command(self):
+        self.clearprint(sInstructions)
+
+    def list_command(self):
+        organizations = self.orgmanager.get_all()
+        print('\n'.join(map(str, organizations)))
+
+    def create_command(self):
+        name = ''  # Some arbitrary invalid value
+        latitude = 1000.0  # Some arbitrary invalid value
+        longitude = 1000.0  # Some arbitrary invalid value
+
+        while not name:
+            print(sEnterName)
+            name = input().strip()
+
+        while not self.lat_legal(latitude):
+            print(sEnterLatitude)
+            try:
+                latitude = float(input())
+            except Exception:
+                pass
+
+        while not self.long_legal(longitude):
+            print(sEnterLongitude)
+            try:
+                longitude = float(input())
+            except Exception:
+                pass
+
         try:
-            longitude = float(input())
+            self.orgmanager.create(name, latitude, longitude)
+            print(sCreationSuccessful)
         except Exception:
-            pass
+            print(sConnectionFailed)
+            exit(1)
 
-    try:
-        orgmanager.create(name, latitude, longitude)
-        print(sCreationSuccessful)
-    except Exception:
-        print(sConnectionFailed)
-        exit(1)
+    def view_command(self, instruction):
+        if len(instruction) != 2 or not instruction[1].isdigit():
+            print(sInvalid)
+            return
 
+        id = int(instruction[1])
 
-def view_command(orgmanager, instruction):
-    if len(instruction) != 2 or not instruction[1].isdigit():
-        print(sInvalid)
-        return
+        if self.orgmanager.contains(id):
+            print(self.orgmanager.get(id))
+        else:
+            print(sNotFound.format(id))
 
-    id = int(instruction[1])
+    def edit_command(self, instruction):
+        if len(instruction) != 2 or not instruction[1].isdigit():
+            print(sInvalid)
+            return
 
-    if orgmanager.contains(id):
-        print(orgmanager.get(id))
-    else:
-        print(sNotFound.format(id))
+        id = int(instruction[1])
 
+        if not self.orgmanager.contains(id):
+            print(sNotFound.format(id))
+            return
 
-def edit_command(orgmanager, instruction):
-    if len(instruction) != 2 or not instruction[1].isdigit():
-        print(sInvalid)
-        return
+        print(sEnterEditName)
 
-    id = int(instruction[1])
+        name = input()
+        latitude = 1000.0  # Some arbitrary invalid value
+        longitude = 1000.0  # Some arbitrary invalid value
 
-    if not orgmanager.contains(id):
-        print(sNotFound.format(id))
-        return
+        while not self.lat_legal(latitude):
+            print(sEnterEditLatitude)
+            latString = input()
+            if not latString:
+                break
+            try:
+                latitude = float(latString)
+            except Exception:
+                pass
 
-    print(sEnterEditName)
+        while not self.long_legal(longitude):
+            print(sEnterEditLongitude)
+            longString = input()
+            if not longString:
+                break
+            try:
+                longitude = float(longString)
+            except Exception:
+                pass
 
-    name = input()
-    latitude = 1000.0  # Some arbitrary invalid value
-    longitude = 1000.0  # Some arbitrary invalid value
+        changed = name or self.lat_legal(latitude) or self.long_legal(longitude)
 
-    while not lat_legal(latitude):
-        print(sEnterEditLatitude)
-        latString = input()
-        if not latString:
-            break
+        if not changed:
+            print(sNothingChanged)
+            return
+
+        organization = self.orgmanager.get(id)
+
+        name = name if name else organization.name
+        latitude = latitude if self.lat_legal(latitude) else organization.latitude
+        longitude = longitude if self.long_legal(longitude) else organization.longitude
+
         try:
-            latitude = float(latString)
+            self.orgmanager.edit(id, name, latitude, longitude)
+            print(sEditSuccessful)
         except Exception:
-            pass
+            print(sConnectionFailed)
+            exit(1)
 
-    while not long_legal(longitude):
-        print(sEnterEditLongitude)
-        longString = input()
-        if not longString:
-            break
+    def delete_command(self, instruction):
+        if len(instruction) != 2 or not instruction[1].isdigit():
+            print(sInvalid)
+            return
+
+        id = int(instruction[1])
+
+        if not self.orgmanager.contains(id):
+            print(sNotFound.format(id))
+            return
+
+        confirmation = ''
+
+        while confirmation not in ['Y', 'y', 'N', 'n']:
+            print(sDeleteConfirm.format(self.orgmanager.get(id).name))
+            confirmation = input().strip()
+
+        if confirmation in ['N', 'n']:
+            print(sDeletionSkipped)
+            return
+
         try:
-            longitude = float(longString)
+            self.orgmanager.delete(id)
+            print(sDeletionSuccessful)
         except Exception:
-            pass
+            print(sConnectionFailed)
+            exit(1)
 
-    changed = name or lat_legal(latitude) or long_legal(longitude)
+    def find_command(self):
+        latitude = 1000.0  # Some arbitrary invalid value
+        longitude = 1000.0  # Some arbitrary invalid value
 
-    if not changed:
-        print(sNothingChanged)
-        return
+        while not self.lat_legal(latitude):
+            print(sEnterLatitude)
+            try:
+                latitude = float(input())
+            except Exception:
+                pass
 
-    organization = orgmanager.get(id)
+        while not self.long_legal(longitude):
+            print(sEnterLongitude)
+            try:
+                longitude = float(input())
+            except Exception:
+                pass
 
-    name = name if name else organization.name
-    latitude = latitude if lat_legal(latitude) else organization.latitude
-    longitude = longitude if long_legal(longitude) else organization.longitude
+        point = (latitude, longitude)
+        shortest_distance, nearest_organizations = self.orgmanager.find_nearest(point)
 
-    try:
-        orgmanager.edit(id, name, latitude, longitude)
-        print(sEditSuccessful)
-    except Exception:
-        print(sConnectionFailed)
-        exit(1)
-
-
-def delete_command(orgmanager, instruction):
-    if len(instruction) != 2 or not instruction[1].isdigit():
-        print(sInvalid)
-        return
-
-    id = int(instruction[1])
-
-    if not orgmanager.contains(id):
-        print(sNotFound.format(id))
-        return
-
-    confirmation = ''
-
-    while confirmation not in ['Y', 'y', 'N', 'n']:
-        print(sDeleteConfirm.format(orgmanager.get(id).name))
-        confirmation = input().strip()
-
-    if confirmation in ['N', 'n']:
-        print(sDeletionSkipped)
-        return
-
-    try:
-        orgmanager.delete(id)
-        print(sDeletionSuccessful)
-    except Exception:
-        print(sConnectionFailed)
-        exit(1)
-
-
-def find_command(orgmanager):
-    latitude = 1000.0  # Some arbitrary invalid value
-    longitude = 1000.0  # Some arbitrary invalid value
-
-    while not lat_legal(latitude):
-        print(sEnterLatitude)
-        try:
-            latitude = float(input())
-        except Exception:
-            pass
-
-    while not long_legal(longitude):
-        print(sEnterLongitude)
-        try:
-            longitude = float(input())
-        except Exception:
-            pass
-
-    point = (latitude, longitude)
-    shortest_distance, nearest_organizations = orgmanager.find_nearest(point)
-
-    for organization in nearest_organizations:
-        print(sNearestReport.format(organization, ('%.2f' % shortest_distance)))
+        for organization in nearest_organizations:
+            print(sNearestReport.format(organization, ('%.2f' % shortest_distance)))
 
 
 if __name__ == '__main__':
-    print(sConnecting)
-
-    try:
-        orgmanager = OrgManager()
-    except Exception:
-        print(sConnectionFailed)
-        exit(1)
-
-    print(sSuccessful)
-    print(orgmanager.count(), sOrgsInDb)
-    print(sInstructions)
-
-    while True:
-        instruction = input().split()
-        command = instruction[0]
-
-        if command == 'help':
-            help_command()
-        elif command == 'list':
-            list_command(orgmanager)
-        elif command == 'create':
-            create_command(orgmanager)
-        elif command == 'view':
-            view_command(orgmanager, instruction)
-        elif command == 'edit':
-            edit_command(orgmanager, instruction)
-        elif command == 'delete':
-            delete_command(orgmanager, instruction)
-        elif command == 'find':
-            find_command(orgmanager)
-        elif command == 'exit':
-            break
-        else:
-            print('Please enter a valid command')
+    crudtool = CrudTool()
+    crudtool.run()
