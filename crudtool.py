@@ -2,9 +2,6 @@ import os
 from orgmanager import OrgManager
 from sys import exit
 
-sConnecting = 'Connecting to Pipe Drive\n'
-sSuccessful = 'Successful!\n'
-sOrgsInDb = 'organizations in database.\n'
 sInstructions = '''Command list:
 
 help - repeat this message
@@ -14,7 +11,11 @@ view [id] - view organization [id]
 edit [id] - edit organization [id]
 delete [id] - delete organization [id]
 find - find the nearest organization(s) for coordinates
-exit - exit this program'''
+exit - exit this program
+'''
+sConnecting = 'Connecting to Pipe Drive\n'
+sSuccessful = 'Successful!\n'
+sOrgsInDb = 'organizations in database.\n'
 sInvalid = 'Invalid command, please try again.'
 sEnterName = 'Please enter a name.'
 sEnterLatitude = 'Please enter a valid latitude.'
@@ -60,7 +61,7 @@ def list_command(orgmanager):
 
 
 def create_command(orgmanager):
-    name = ''
+    name = ''  # Some arbitrary invalid value
     latitude = 1000.0  # Some arbitrary invalid value
     longitude = 1000.0  # Some arbitrary invalid value
 
@@ -91,72 +92,73 @@ def create_command(orgmanager):
 
 
 def view_command(orgmanager, instruction):
-    if len(instruction) == 2:
-        if instruction[1].isdigit():
-            id = int(instruction[1])
-            if orgmanager.contains(id):
-                print(orgmanager.get(id))
-            else:
-                print(sNotFound.format(id))
-        else:
-            print(sInvalid)
-    else:
+    if len(instruction) != 2 or not instruction[1].isdigit():
         print(sInvalid)
+        return
+    
+    id = int(instruction[1])
+
+    if orgmanager.contains(id):
+        print(orgmanager.get(id))
+    else:
+        print(sNotFound.format(id))
 
 
 def edit_command(orgmanager, instruction):
-    if len(instruction) == 2:
-        if instruction[1].isdigit():
-            id = int(instruction[1])
-            if orgmanager.contains(id):
-                print(sEnterEditName)
-
-                name = input()
-                latitude = 1000.0  # Some arbitrary invalid value
-                longitude = 1000.0  # Some arbitrary invalid value
-
-                while not lat_legal(latitude):
-                    print(sEnterEditLatitude)
-                    latString = input()
-                    if not latString:
-                        break
-                    try:
-                        latitude = float(latString)
-                    except Exception:
-                        pass
-
-                while not long_legal(longitude):
-                    print(sEnterEditLongitude)
-                    longString = input()
-                    if not longString:
-                        break
-                    try:
-                        longitude = float(longString)
-                    except Exception:
-                        pass
-
-                changed = name or lat_legal(latitude) or long_legal(longitude)
-                if not changed:
-                    print(sNothingChanged)
-                else:
-                    organization = orgmanager.get(id)
-
-                    name = name if name else organization.name
-                    latitude = latitude if lat_legal(latitude) else organization.latitude
-                    longitude = longitude if long_legal(longitude) else organization.longitude
-
-                    try:
-                        orgmanager.edit(id, name, latitude, longitude)
-                        print(sEditSuccessful)
-                    except Exception:
-                        print(sConnectionFailed)
-                        exit(1)
-            else:
-                print(sNotFound.format(id))
-        else:
-            print(sInvalid)
-    else:
+    if len(instruction) != 2 or not instruction[1].isdigit():
         print(sInvalid)
+        return
+    
+    id = int(instruction[1])
+
+    if not orgmanager.contains(id):
+        print(sNotFound.format(id))
+        return
+
+    print(sEnterEditName)
+
+    name = input()
+    latitude = 1000.0  # Some arbitrary invalid value
+    longitude = 1000.0  # Some arbitrary invalid value
+
+    while not lat_legal(latitude):
+        print(sEnterEditLatitude)
+        latString = input()
+        if not latString:
+            break
+        try:
+            latitude = float(latString)
+        except Exception:
+            pass
+
+    while not long_legal(longitude):
+        print(sEnterEditLongitude)
+        longString = input()
+        if not longString:
+            break
+        try:
+            longitude = float(longString)
+        except Exception:
+            pass
+
+    changed = name or lat_legal(latitude) or long_legal(longitude)
+
+    if not changed:
+        print(sNothingChanged)
+        return
+
+    organization = orgmanager.get(id)
+
+    name = name if name else organization.name
+    latitude = latitude if lat_legal(latitude) else organization.latitude
+    longitude = longitude if long_legal(longitude) else organization.longitude
+
+    try:
+        orgmanager.edit(id, name, latitude, longitude)
+        print(sEditSuccessful)
+    except Exception:
+        print(sConnectionFailed)
+        exit(1)        
 
 
 def delete_command(orgmanager, instruction):
@@ -166,25 +168,26 @@ def delete_command(orgmanager, instruction):
 
     id = int(instruction[1])
 
-    if orgmanager.contains(id):
-        confirmation = ''
-
-        while confirmation not in ['Y', 'y', 'N', 'n']:
-            print(sDeleteConfirm.format(orgmanager.get(id).name))
-            confirmation = input().strip()
-
-        if confirmation in ['N', 'n']:
-            print(sDeletionSkipped)
-            return
-
-        try:
-            orgmanager.delete(id)
-            print(sDeletionSuccessful)
-        except Exception:
-            print(sConnectionFailed)
-            exit(1)
-    else:
+    if not orgmanager.contains(id):
         print(sNotFound.format(id))
+        return
+
+    confirmation = ''
+
+    while confirmation not in ['Y', 'y', 'N', 'n']:
+        print(sDeleteConfirm.format(orgmanager.get(id).name))
+        confirmation = input().strip()
+
+    if confirmation in ['N', 'n']:
+        print(sDeletionSkipped)
+        return
+
+    try:
+        orgmanager.delete(id)
+        print(sDeletionSuccessful)
+    except Exception:
+        print(sConnectionFailed)
+        exit(1)        
 
 
 def find_command(orgmanager):

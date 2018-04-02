@@ -16,7 +16,6 @@ class PipeDriver:
 
     def get_organization(self, id):
         response = requests.get(self.base_url + str(id), params=self.params)
-
         response.raise_for_status()
 
         data = response.json()['data']
@@ -27,11 +26,9 @@ class PipeDriver:
 
     def get_organizations(self):
         response = requests.get(self.base_url, params=self.params)
-
         response.raise_for_status()
 
         organizations = {}
-
         data = response.json()['data']
 
         for entry in data:
@@ -48,18 +45,15 @@ class PipeDriver:
         data = {'name': name, 'address': address}
 
         response = requests.post(self.base_url, data=data, params=self.params)
-
         response.raise_for_status()
 
         id = response.json()['data']['id']
-
         organization = Organization(id, name, latitude, longitude)
 
         return organization
 
     def delete_organization(self, id):
         response = requests.delete(self.base_url + str(id), params=self.params)
-
         response.raise_for_status()
 
         return True

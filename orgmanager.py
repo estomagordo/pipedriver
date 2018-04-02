@@ -82,8 +82,9 @@ class OrgManager:
 
     def find_nearest(self, point):
         sorted_orgs = sorted(
-            (great_circle_distance(point, (org.latitude, org.longitude)), org)
-            for org in self.organizations.values())
+            ((great_circle_distance(point, (org.latitude, org.longitude)), org)
+                for org in self.organizations.values()),
+            key=lambda entry: entry[0])
 
         shortest_distance = sorted_orgs[0][0]
         nearest = []
