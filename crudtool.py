@@ -95,7 +95,7 @@ def view_command(orgmanager, instruction):
         if instruction[1].isdigit():
             id = int(instruction[1])
             if orgmanager.contains(id):
-                orgmanager.print(id)
+                print(orgmanager.get(id))
             else:
                 print(sNotFound.format(id))
         else:
