@@ -2,22 +2,23 @@ import os
 from orgmanager import OrgManager
 from sys import exit
 
-sConnecting = 'Connecting to Pipe Drive'
-sSuccessful = 'Successful!'
-sOrgsInDb = 'organizations in database.'
+sConnecting = 'Connecting to Pipe Drive\n'
+sSuccessful = 'Successful!\n'
+sOrgsInDb = 'organizations in database.\n'
 sInstructions = '''Command list:
+
 help - repeat this message
 list - list all organizations
 create - create new organization
 view [id] - view organization [id]
 edit [id] - edit organization [id]
-delete [id] - edit organization [id]
+delete [id] - delete organization [id]
 find - find the nearest organization(s) for coordinates
 exit - exit this program'''
 sInvalid = 'Invalid command, please try again.'
 sEnterName = 'Please enter a name.'
-sEnterLatitude = 'Please enter a latitude.'
-sEnterLongitude = 'Please enter a longitude.'
+sEnterLatitude = 'Please enter a valid latitude.'
+sEnterLongitude = 'Please enter a valid longitude.'
 sCreationSuccessful = 'Creation successful!'
 sNotFound = 'Organization with id {0} not found.'
 sDeletionSuccessful = 'Deletion successful!'
