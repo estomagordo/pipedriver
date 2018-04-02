@@ -3,7 +3,7 @@ from pipedriver import PipeDriver
 from math import radians, cos, sin, atan2, sqrt
 
 earth_radius = 6371
-epsilon = 0.000001
+epsilon = 0.000001  # Error tolerance for proximity equality
 
 
 def get_api_key():

@@ -61,8 +61,8 @@ def list_command(orgmanager):
 
 def create_command(orgmanager):
     name = ''
-    latitude = 1000.0
-    longitude = 1000.0
+    latitude = 1000.0  # Some arbitrary invalid value
+    longitude = 1000.0  # Some arbitrary invalid value
 
     while not name:
         print(sEnterName)
@@ -112,8 +112,8 @@ def edit_command(orgmanager, instruction):
                 print(sEnterEditName)
 
                 name = input()
-                latitude = 1000.0
-                longitude = 1000.0
+                latitude = 1000.0  # Some arbitrary invalid value
+                longitude = 1000.0  # Some arbitrary invalid value
 
                 while not lat_legal(latitude):
                     print(sEnterEditLatitude)
@@ -188,8 +188,8 @@ def delete_command(orgmanager, instruction):
 
 
 def find_command(orgmanager):
-    latitude = 1000.0
-    longitude = 1000.0
+    latitude = 1000.0  # Some arbitrary invalid value
+    longitude = 1000.0  # Some arbitrary invalid value
 
     while not lat_legal(latitude):
         print(sEnterLatitude)
